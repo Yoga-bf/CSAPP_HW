@@ -1,17 +1,25 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <sys/mman.h>
+#include "../csapp.h"
 
-
-int main(int argc, char *argv[])
+void mmapcopy(int fd, int size)
 {
-    char *bufq;
-    int fd1, fd2;
-    fd1 = open(argv[1], "r");
-    fd2 = open(argv[1], "r");
-    long length  = lseek(fd1, 0, SEEK_END);
+    char *bufp;
 
-    bufq = mmap(NULL, length, PROT_READ, MAP_PRIVATE, fd2, 0);
-    printf("%s", bufq);
+    bufp = Mmap(NULL, size, PROT_READ, MAP_PRIVATE, fd, 0);
+    Write(1, bufp, size);
+    return;
+}
+
+int main(int argc, char **argv)
+{
+    struct stat stat;
+    int fd;
+    if (argc != 2) {
+        printf("usage: %s <filename>\n", argv[0]);
+        exit(0);
+    }
+
+    fd = Open(argv[1], O_RDONLY, 0);
+    fstat(fd, &stat);
+    mmapcopy(fd, stat.st_size);
+    exit(0);
 }
